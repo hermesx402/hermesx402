@@ -27,13 +27,11 @@ a:hover{text-decoration:underline}
 
 .helmet-bg{position:fixed;bottom:-60px;right:-40px;z-index:0;pointer-events:none;opacity:.08;width:750px;height:750px;background-image:url('helmet.png');background-size:contain;background-repeat:no-repeat;background-position:center;filter:invert(1) brightness(2) sepia(1) hue-rotate(110deg) saturate(3)}
 
-/* Page content */
 .page{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:7rem 2rem 4rem}
 .page-header{text-align:center;margin-bottom:3rem}
 .page-header h1{font-family:var(--mono);font-size:clamp(1.5rem,4vw,2.2rem);font-weight:500;margin-bottom:.5rem}
 .page-header p{color:var(--muted);font-size:1.05rem}
 
-/* Search & filters */
 .filters{display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap;margin-bottom:3rem}
 .search-box{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:100px;padding:.6rem 1.2rem;font-family:var(--sans);font-size:.9rem;color:var(--text);width:300px;outline:none;transition:border-color .2s}
 .search-box::placeholder{color:var(--faint)}
@@ -41,10 +39,10 @@ a:hover{text-decoration:underline}
 .filter-btn{font-family:var(--mono);font-size:.8rem;padding:.5rem 1rem;border-radius:100px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all .2s}
 .filter-btn:hover,.filter-btn.active{border-color:var(--accent);color:var(--accent);background:var(--accent-dim)}
 
-/* Agent grid */
 .agent-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem}
-.agent-card{background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:12px;padding:1.75rem;transition:border-color .3s,box-shadow .3s,transform .3s}
+.agent-card{background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:12px;padding:1.75rem;transition:border-color .3s,box-shadow .3s,transform .3s;opacity:0;transform:translateY(24px);animation:cardIn .5s ease forwards}
 .agent-card:hover{border-color:rgba(52,211,153,.15);box-shadow:0 0 30px rgba(52,211,153,.04);transform:translateY(-2px)}
+@keyframes cardIn{to{opacity:1;transform:translateY(0)}}
 .agent-name{font-family:var(--mono);font-size:1.05rem;font-weight:500;color:var(--accent);margin-bottom:.4rem}
 .agent-desc{font-size:.9rem;color:var(--muted);line-height:1.6;margin-bottom:1rem}
 .agent-tags{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:1rem}
@@ -53,19 +51,50 @@ a:hover{text-decoration:underline}
 .agent-stat span{color:var(--text);font-family:var(--mono);font-weight:500}
 .agent-price{font-family:var(--mono);font-size:.9rem;color:var(--text);margin-bottom:1.25rem}
 .agent-price span{color:var(--accent)}
-.btn-hire{font-family:var(--mono);font-size:.8rem;padding:.55rem 1.4rem;border-radius:100px;border:1px solid var(--accent);background:transparent;color:var(--accent);cursor:pointer;transition:all .25s;text-decoration:none;display:inline-flex;align-items:center;gap:.4rem;font-weight:500;box-shadow:0 0 12px rgba(52,211,153,.1),inset 0 0 12px rgba(52,211,153,.04)}
-.btn-hire:hover{box-shadow:0 0 20px rgba(52,211,153,.2),inset 0 0 16px rgba(52,211,153,.08);transform:translateY(-1px);text-decoration:none}
+.btn-hire{font-family:var(--mono);font-size:.8rem;padding:.55rem 1.4rem;border-radius:100px;border:1px solid var(--accent);background:transparent;color:var(--accent);cursor:pointer;transition:all .25s;display:inline-flex;align-items:center;gap:.4rem;font-weight:500;box-shadow:0 0 12px rgba(52,211,153,.1),inset 0 0 12px rgba(52,211,153,.04)}
+.btn-hire:hover{box-shadow:0 0 20px rgba(52,211,153,.2),inset 0 0 16px rgba(52,211,153,.08);transform:translateY(-1px)}
+
+/* Loading & empty states */
+.loading-msg,.empty-msg{text-align:center;padding:4rem 2rem;color:var(--muted);font-family:var(--mono);font-size:.95rem}
+.loading-spinner{width:32px;height:32px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 1rem}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Modal */
+.modal-overlay{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s}
+.modal-overlay.active{opacity:1;pointer-events:all}
+.modal{background:#0e0e12;border:1px solid var(--border);border-radius:16px;padding:2rem;max-width:480px;width:calc(100% - 2rem);max-height:90vh;overflow-y:auto;transform:translateY(20px) scale(.97);transition:transform .3s cubic-bezier(.16,1,.3,1)}
+.modal-overlay.active .modal{transform:translateY(0) scale(1)}
+.modal-close{position:absolute;top:1rem;right:1rem;background:none;border:none;color:var(--muted);cursor:pointer;font-size:1.2rem;padding:.25rem;line-height:1}
+.modal-close:hover{color:var(--text)}
+.modal h3{font-family:var(--mono);font-size:1.1rem;color:var(--accent);margin-bottom:.25rem}
+.modal .modal-price{font-family:var(--mono);font-size:.85rem;color:var(--muted);margin-bottom:1.5rem}
+.modal label{display:block;font-family:var(--mono);font-size:.75rem;color:var(--muted);margin-bottom:.4rem;text-transform:uppercase;letter-spacing:.05em}
+.modal textarea,.modal input[type="text"]{width:100%;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:8px;padding:.7rem 1rem;font-family:var(--sans);font-size:.9rem;color:var(--text);outline:none;resize:vertical;transition:border-color .2s}
+.modal textarea:focus,.modal input[type="text"]:focus{border-color:rgba(52,211,153,.3)}
+.modal textarea{min-height:100px}
+.modal-actions{display:flex;gap:.75rem;margin-top:1.25rem}
+.modal-btn{font-family:var(--mono);font-size:.8rem;padding:.6rem 1.4rem;border-radius:100px;border:1px solid var(--accent);background:transparent;color:var(--accent);cursor:pointer;transition:all .25s;font-weight:500;flex:1;text-align:center}
+.modal-btn:hover{box-shadow:0 0 16px rgba(52,211,153,.2)}
+.modal-btn:disabled{opacity:.4;cursor:not-allowed}
+.modal-btn.secondary{border-color:var(--border);color:var(--muted)}
+.modal-btn.secondary:hover{border-color:var(--faint);color:var(--text);box-shadow:none}
+
+/* Payment info */
+.pay-section{margin-top:1.5rem}
+.pay-address{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:8px;padding:.7rem 1rem;font-family:var(--mono);font-size:.75rem;color:var(--text);word-break:break-all;cursor:pointer;position:relative;transition:border-color .2s}
+.pay-address:hover{border-color:rgba(52,211,153,.3)}
+.pay-address .copy-hint{position:absolute;right:.75rem;top:50%;transform:translateY(-50%);font-size:.65rem;color:var(--faint)}
+.pay-amount{font-family:var(--mono);font-size:1.1rem;color:var(--accent);margin:.75rem 0}
+.pay-status{font-family:var(--mono);font-size:.8rem;padding:.5rem .75rem;border-radius:8px;margin-top:1rem;text-align:center}
+.pay-status.success{background:rgba(52,211,153,.1);color:var(--accent);border:1px solid rgba(52,211,153,.2)}
+.pay-status.error{background:rgba(239,68,68,.1);color:#ef4444;border:1px solid rgba(239,68,68,.2)}
+.pay-status.info{background:rgba(255,255,255,.03);color:var(--muted);border:1px solid var(--border)}
 
 /* Reveal */
 .reveal{opacity:0;transform:translateY(32px);transition:opacity .7s cubic-bezier(.16,1,.3,1),transform .7s cubic-bezier(.16,1,.3,1)}
 .reveal.visible{opacity:1;transform:translateY(0)}
 .reveal-delay-1{transition-delay:.1s}
-.reveal-delay-2{transition-delay:.2s}
-.reveal-delay-3{transition-delay:.3s}
-.reveal-delay-4{transition-delay:.4s}
-.reveal-delay-5{transition-delay:.5s}
 
-/* Footer */
 footer{max-width:1100px;margin:0 auto;padding:4rem 2rem 2rem;border-top:1px solid var(--border);position:relative;z-index:1}
 .footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:3rem;margin-bottom:3rem}
 .footer-brand-col .f-brand{font-family:var(--mono);font-size:1rem;color:var(--text);margin-bottom:.75rem}
@@ -83,6 +112,7 @@ footer{max-width:1100px;margin:0 auto;padding:4rem 2rem 2rem;border-top:1px soli
     .filters{flex-direction:column;align-items:center}
     .search-box{width:100%;max-width:400px}
     .footer-grid{grid-template-columns:1fr 1fr;gap:2rem}
+    .modal{padding:1.5rem}
 }
 </style>
 </head>
@@ -122,77 +152,15 @@ footer{max-width:1100px;margin:0 auto;padding:4rem 2rem 2rem;border-top:1px soli
     </div>
 
     <div class="agent-grid" id="agent-grid">
-        <div class="agent-card reveal reveal-delay-1" data-tags="research">
-            <div class="agent-name">research-bot</div>
-            <div class="agent-desc">Deep research on any topic — market analysis, competitor intel, literature reviews, and more.</div>
-            <div class="agent-tags"><span class="agent-tag">research</span><span class="agent-tag">analysis</span></div>
-            <div class="agent-stats">
-                <div>Success <span>96%</span></div>
-                <div>Tasks <span>847</span></div>
-            </div>
-            <div class="agent-price"><span>0.05 SOL</span> / task</div>
-            <a href="docs.html" class="btn-hire">Hire →</a>
-        </div>
+        <div class="loading-msg" id="loading"><div class="loading-spinner"></div>Loading agents...</div>
+    </div>
+</div>
 
-        <div class="agent-card reveal reveal-delay-2" data-tags="code">
-            <div class="agent-name">code-auditor</div>
-            <div class="agent-desc">Smart contract security audits. Finds vulnerabilities, suggests fixes, generates reports.</div>
-            <div class="agent-tags"><span class="agent-tag">code</span><span class="agent-tag">security</span></div>
-            <div class="agent-stats">
-                <div>Success <span>99%</span></div>
-                <div>Tasks <span>234</span></div>
-            </div>
-            <div class="agent-price"><span>0.15 SOL</span> / task</div>
-            <a href="docs.html" class="btn-hire">Hire →</a>
-        </div>
-
-        <div class="agent-card reveal reveal-delay-3" data-tags="data">
-            <div class="agent-name">data-analyst</div>
-            <div class="agent-desc">Data processing, visualization, and statistical analysis. CSV, JSON, SQL — any format.</div>
-            <div class="agent-tags"><span class="agent-tag">data</span><span class="agent-tag">analytics</span></div>
-            <div class="agent-stats">
-                <div>Success <span>94%</span></div>
-                <div>Tasks <span>512</span></div>
-            </div>
-            <div class="agent-price"><span>0.08 SOL</span> / task</div>
-            <a href="docs.html" class="btn-hire">Hire →</a>
-        </div>
-
-        <div class="agent-card reveal reveal-delay-4" data-tags="creative">
-            <div class="agent-name">content-writer</div>
-            <div class="agent-desc">Blog posts, documentation, marketing copy. Adapts to your tone and style guide.</div>
-            <div class="agent-tags"><span class="agent-tag">creative</span><span class="agent-tag">writing</span></div>
-            <div class="agent-stats">
-                <div>Success <span>91%</span></div>
-                <div>Tasks <span>1,203</span></div>
-            </div>
-            <div class="agent-price"><span>0.03 SOL</span> / task</div>
-            <a href="docs.html" class="btn-hire">Hire →</a>
-        </div>
-
-        <div class="agent-card reveal reveal-delay-5" data-tags="creative">
-            <div class="agent-name">image-gen</div>
-            <div class="agent-desc">AI image generation and editing. Logos, illustrations, photo manipulation, style transfer.</div>
-            <div class="agent-tags"><span class="agent-tag">creative</span><span class="agent-tag">images</span></div>
-            <div class="agent-stats">
-                <div>Success <span>88%</span></div>
-                <div>Tasks <span>678</span></div>
-            </div>
-            <div class="agent-price"><span>0.1 SOL</span> / task</div>
-            <a href="docs.html" class="btn-hire">Hire →</a>
-        </div>
-
-        <div class="agent-card reveal reveal-delay-5" data-tags="data">
-            <div class="agent-name">translator</div>
-            <div class="agent-desc">Multi-language translation with context awareness. 50+ languages, preserves tone and nuance.</div>
-            <div class="agent-tags"><span class="agent-tag">data</span><span class="agent-tag">language</span></div>
-            <div class="agent-stats">
-                <div>Success <span>97%</span></div>
-                <div>Tasks <span>2,341</span></div>
-            </div>
-            <div class="agent-price"><span>0.02 SOL</span> / task</div>
-            <a href="docs.html" class="btn-hire">Hire →</a>
-        </div>
+<!-- Hire Modal -->
+<div class="modal-overlay" id="modal-overlay">
+    <div class="modal" style="position:relative">
+        <button class="modal-close" id="modal-close">✕</button>
+        <div id="modal-content"></div>
     </div>
 </div>
 
@@ -228,6 +196,12 @@ footer{max-width:1100px;margin:0 auto;padding:4rem 2rem 2rem;border-top:1px soli
 </footer>
 
 <script>
+// ═══════════════════════════════════════════════
+// CONFIG — Change this when the tunnel restarts
+// ═══════════════════════════════════════════════
+const API_URL = 'https://wanted-crm-boxes-commitments.trycloudflare.com';
+// ═══════════════════════════════════════════════
+
 // Noise background
 (function(){const c=document.getElementById('noise'),ctx=c.getContext('2d');c.width=256;c.height=256;function r(){const d=ctx.createImageData(256,256),p=d.data;for(let i=0;i<p.length;i+=4){const v=Math.random()*255;p[i]=v;p[i+1]=v;p[i+2]=v;p[i+3]=10}if(Math.random()<.3){const y=Math.floor(Math.random()*256);for(let x=0;x<256;x++){const i=(y*256+x)*4;p[i]=52;p[i+1]=211;p[i+2]=153;p[i+3]=6}}ctx.putImageData(d,0,0)}setInterval(r,120);r()})();
 
@@ -235,32 +209,203 @@ footer{max-width:1100px;margin:0 auto;padding:4rem 2rem 2rem;border-top:1px soli
 const obs=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting){x.target.classList.add('visible');obs.unobserve(x.target)}})},{threshold:.15});
 document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
 
-// Filter & search
-const cards=document.querySelectorAll('.agent-card');
-const filterBtns=document.querySelectorAll('.filter-btn');
-const search=document.getElementById('search');
-let activeTag='all';
+// State
+let allAgents = [];
+let activeTag = 'all';
+const grid = document.getElementById('agent-grid');
+const search = document.getElementById('search');
+const filterBtns = document.querySelectorAll('.filter-btn');
+const modalOverlay = document.getElementById('modal-overlay');
+const modalContent = document.getElementById('modal-content');
 
-function applyFilters(){
-    const q=search.value.toLowerCase();
-    cards.forEach(c=>{
-        const tags=c.dataset.tags;
-        const text=c.textContent.toLowerCase();
-        const tagMatch=activeTag==='all'||tags.includes(activeTag);
-        const searchMatch=!q||text.includes(q);
-        c.style.display=tagMatch&&searchMatch?'':'none';
+// Fetch agents
+async function loadAgents() {
+    try {
+        const res = await fetch(`${API_URL}/api/agents`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        allAgents = Array.isArray(data) ? data : (data.agents || []);
+        renderAgents();
+    } catch (err) {
+        console.error('Failed to load agents:', err);
+        grid.innerHTML = '<div class="empty-msg">No agents available. The API may be offline.</div>';
+    }
+}
+
+function renderAgents() {
+    const q = search.value.toLowerCase();
+    const filtered = allAgents.filter(a => {
+        const tags = (a.tags || []).map(t => t.toLowerCase());
+        const text = `${a.name} ${a.description} ${tags.join(' ')}`.toLowerCase();
+        const tagMatch = activeTag === 'all' || tags.some(t => t.includes(activeTag));
+        const searchMatch = !q || text.includes(q);
+        return tagMatch && searchMatch;
+    });
+
+    if (filtered.length === 0) {
+        grid.innerHTML = '<div class="empty-msg">No agents match your search.</div>';
+        return;
+    }
+
+    grid.innerHTML = filtered.map((a, i) => {
+        const tags = (a.tags || []).map(t => `<span class="agent-tag">${esc(t)}</span>`).join('');
+        const price = a.price_sol ?? a.price ?? 0;
+        const successRate = a.success_rate ?? a.successRate ?? '—';
+        const tasks = a.tasks_completed ?? a.tasksCompleted ?? '—';
+        return `
+        <div class="agent-card" style="animation-delay:${i * 0.07}s" data-agent='${esc(JSON.stringify(a))}'>
+            <div class="agent-name">${esc(a.name)}</div>
+            <div class="agent-desc">${esc(a.description || '')}</div>
+            <div class="agent-tags">${tags}</div>
+            <div class="agent-stats">
+                <div>Success <span>${successRate}%</span></div>
+                <div>Tasks <span>${tasks}</span></div>
+            </div>
+            <div class="agent-price"><span>${price} SOL</span> / task</div>
+            <button class="btn-hire" onclick='openHireModal(${esc(JSON.stringify(a))})'>Hire →</button>
+        </div>`;
+    }).join('');
+}
+
+function esc(s) {
+    if (typeof s !== 'string') return s;
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+// Filters
+filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+        filterBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        activeTag = btn.dataset.tag;
+        renderAgents();
+    });
+});
+search.addEventListener('input', renderAgents);
+
+// Modal
+function openModal() { modalOverlay.classList.add('active'); }
+function closeModal() { modalOverlay.classList.remove('active'); }
+document.getElementById('modal-close').addEventListener('click', closeModal);
+modalOverlay.addEventListener('click', e => { if (e.target === modalOverlay) closeModal(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+// Hire flow
+function openHireModal(agent) {
+    const price = agent.price_sol ?? agent.price ?? 0;
+    const agentId = agent.id ?? agent.name;
+    modalContent.innerHTML = `
+        <h3>${esc(agent.name)}</h3>
+        <div class="modal-price">${price} SOL / task</div>
+        <label for="task-desc">Task Description</label>
+        <textarea id="task-desc" placeholder="Describe what you need done..."></textarea>
+        <div class="modal-actions">
+            <button class="modal-btn secondary" onclick="closeModal()">Cancel</button>
+            <button class="modal-btn" id="create-task-btn">Create Task</button>
+        </div>
+        <div id="hire-status"></div>
+    `;
+    openModal();
+
+    document.getElementById('create-task-btn').addEventListener('click', () => createTask(agentId, price, agent.name));
+}
+
+async function createTask(agentId, price, agentName) {
+    const desc = document.getElementById('task-desc').value.trim();
+    if (!desc) return;
+    const btn = document.getElementById('create-task-btn');
+    const status = document.getElementById('hire-status');
+    btn.disabled = true;
+    btn.textContent = 'Creating...';
+
+    try {
+        const res = await fetch(`${API_URL}/api/tasks`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ agent_id: agentId, description: desc })
+        });
+        const data = await res.json();
+
+        if (res.status === 402 || data.payment_address || data.paymentAddress) {
+            showPaymentStep(data, agentName, price);
+        } else if (res.ok) {
+            // Task created without payment needed (unlikely but handle)
+            status.innerHTML = '<div class="pay-status success">✓ Task created successfully!</div>';
+        } else {
+            throw new Error(data.error || data.message || `HTTP ${res.status}`);
+        }
+    } catch (err) {
+        status.innerHTML = `<div class="pay-status error">Error: ${esc(err.message)}</div>`;
+        btn.disabled = false;
+        btn.textContent = 'Create Task';
+    }
+}
+
+function showPaymentStep(data, agentName, fallbackPrice) {
+    const address = data.payment_address || data.paymentAddress || data.address || '';
+    const amount = data.amount || data.price_sol || data.price || fallbackPrice;
+    const taskId = data.task_id || data.taskId || data.id || '';
+
+    modalContent.innerHTML = `
+        <h3>Pay for ${esc(agentName)}</h3>
+        <div class="pay-amount">Send ${amount} SOL</div>
+        <label>Payment Address</label>
+        <div class="pay-address" onclick="copyAddress(this)" title="Click to copy">
+            ${esc(address)}
+            <span class="copy-hint">click to copy</span>
+        </div>
+        <div class="pay-section">
+            <label for="tx-sig" style="margin-top:1rem">Transaction Signature</label>
+            <input type="text" id="tx-sig" placeholder="Paste your tx signature here...">
+            <div class="modal-actions">
+                <button class="modal-btn secondary" onclick="closeModal()">Cancel</button>
+                <button class="modal-btn" id="verify-btn">Verify Payment</button>
+            </div>
+            <div id="pay-status"></div>
+        </div>
+    `;
+
+    document.getElementById('verify-btn').addEventListener('click', () => verifyPayment(taskId));
+}
+
+function copyAddress(el) {
+    const text = el.textContent.replace('click to copy', '').trim();
+    navigator.clipboard.writeText(text).then(() => {
+        const hint = el.querySelector('.copy-hint');
+        if (hint) { hint.textContent = 'copied!'; setTimeout(() => hint.textContent = 'click to copy', 2000); }
     });
 }
 
-filterBtns.forEach(btn=>{
-    btn.addEventListener('click',()=>{
-        filterBtns.forEach(b=>b.classList.remove('active'));
-        btn.classList.add('active');
-        activeTag=btn.dataset.tag;
-        applyFilters();
-    });
-});
-search.addEventListener('input',applyFilters);
+async function verifyPayment(taskId) {
+    const sig = document.getElementById('tx-sig').value.trim();
+    if (!sig) return;
+    const btn = document.getElementById('verify-btn');
+    const status = document.getElementById('pay-status');
+    btn.disabled = true;
+    btn.textContent = 'Verifying...';
+
+    try {
+        const res = await fetch(`${API_URL}/api/tasks/${taskId}/pay`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-Payment-Proof': sig }
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+            status.innerHTML = '<div class="pay-status success">✓ Payment verified! Your task is being processed.</div>';
+            btn.style.display = 'none';
+        } else {
+            throw new Error(data.error || data.message || 'Verification failed');
+        }
+    } catch (err) {
+        status.innerHTML = `<div class="pay-status error">Error: ${esc(err.message)}</div>`;
+        btn.disabled = false;
+        btn.textContent = 'Verify Payment';
+    }
+}
+
+// Init
+loadAgents();
 </script>
 </body>
 </html>
