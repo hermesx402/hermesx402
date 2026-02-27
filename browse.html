@@ -342,8 +342,9 @@ async function createTask(agentId, price, agentName) {
 }
 
 function showPaymentStep(data, agentName, fallbackPrice) {
-    const address = data.payment_address || data.paymentAddress || data.address || '';
-    const amount = data.amount || data.price_sol || data.price || fallbackPrice;
+    const payment = data.payment || {};
+    const address = payment.address || data.payment_address || data.paymentAddress || data.address || '';
+    const amount = payment.amount || data.amount || data.price_sol || data.price || fallbackPrice;
     const taskId = data.task_id || data.taskId || data.id || '';
 
     modalContent.innerHTML = `
