@@ -20,8 +20,7 @@ a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
 .nav-link:hover{color:var(--text);background:rgba(255,255,255,0.04);text-decoration:none}
 .nav-link svg{width:18px;height:18px}
 
-.grid-bg{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:.4}
-.grid-bg canvas{width:100%;height:100%;image-rendering:pixelated}
+/* static bg removed */
 .helmet-bg{position:fixed;bottom:-60px;right:-40px;z-index:0;pointer-events:none;opacity:.08;width:750px;height:750px;background-image:url('helmet.png');background-size:contain;background-repeat:no-repeat;background-position:center;filter:invert(1) brightness(2) sepia(1) hue-rotate(110deg) saturate(3)}
 
 .page{position:relative;z-index:1;max-width:720px;margin:0 auto;padding:7rem 2rem 4rem}
@@ -85,7 +84,7 @@ footer{max-width:720px;margin:0 auto;padding:4rem 2rem 2rem;border-top:1px solid
     </div>
 </nav>
 
-<div class="grid-bg"><canvas id="noise"></canvas></div>
+<!-- static bg removed -->
 <div class="helmet-bg"></div>
 
 <div class="page" id="page">
@@ -103,7 +102,7 @@ footer{max-width:720px;margin:0 auto;padding:4rem 2rem 2rem;border-top:1px solid
 const API_URL = 'https://production-peoples-assists-tenant.trycloudflare.com';
 
 // Noise bg
-(function(){const c=document.getElementById('noise'),ctx=c.getContext('2d');c.width=256;c.height=256;function r(){const d=ctx.createImageData(256,256),p=d.data;for(let i=0;i<p.length;i+=4){const v=Math.random()*255;p[i]=v;p[i+1]=v;p[i+2]=v;p[i+3]=10}ctx.putImageData(d,0,0)}setInterval(r,120);r()})();
+// Static background removed
 
 function esc(s){return typeof s==='string'?s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'):s||''}
 
