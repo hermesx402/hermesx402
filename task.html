@@ -100,7 +100,7 @@ footer{max-width:720px;margin:0 auto;padding:4rem 2rem 2rem;border-top:1px solid
 </footer>
 
 <script>
-const API_URL = 'https://focus-military-pentium-nokia.trycloudflare.com';
+const API_URL = 'https://dollar-residential-spa-reaches.trycloudflare.com';
 
 // Noise bg
 (function(){const c=document.getElementById('noise'),ctx=c.getContext('2d');c.width=256;c.height=256;function r(){const d=ctx.createImageData(256,256),p=d.data;for(let i=0;i<p.length;i+=4){const v=Math.random()*255;p[i]=v;p[i+1]=v;p[i+2]=v;p[i+3]=10}ctx.putImageData(d,0,0)}setInterval(r,120);r()})();
@@ -185,12 +185,27 @@ function renderTask(t){
         <div class="detail-grid">
             <div class="detail"><div class="detail-label">Created</div><div class="detail-value">${t.created_at || '—'}</div></div>
             <div class="detail"><div class="detail-label">Payment Verified</div><div class="detail-value">${t.payment_verified_at || '—'}</div></div>
+            <div class="detail"><div class="detail-label">Escrow Address</div><div class="detail-value">${t.escrow_address ? `<a href="https://explorer.solana.com/address/${t.escrow_address}" target="_blank">${t.escrow_address.slice(0,20)}...</a>` : '—'}</div></div>
+            <div class="detail"><div class="detail-label">Escrow Balance</div><div class="detail-value" id="escrow-balance">loading...</div></div>
             <div class="detail"><div class="detail-label">Payment Tx</div><div class="detail-value">${payLink}</div></div>
             <div class="detail"><div class="detail-label">Escrow Release Tx</div><div class="detail-value">${releaseLink}</div></div>
             ${t.result_at ? `<div class="detail"><div class="detail-label">Completed At</div><div class="detail-value">${t.result_at}</div></div>` : ''}
         </div>
         ${resultHtml}
     </div>`;
+
+    // Fetch escrow balance
+    if(t.escrow_address || t.id){
+        fetch(`${API_URL}/api/tasks/${t.id}/escrow`).then(r=>r.json()).then(d=>{
+            const el = document.getElementById('escrow-balance');
+            if(el && d.balance_sol !== null && d.balance_sol !== undefined){
+                el.textContent = `${d.balance_sol} SOL`;
+            } else if(el){ el.textContent = '—'; }
+        }).catch(()=>{
+            const el = document.getElementById('escrow-balance');
+            if(el) el.textContent = '—';
+        });
+    }
 }
 
 function showTab(tab){

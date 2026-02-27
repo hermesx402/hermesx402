@@ -1,13 +1,24 @@
 const express = require('express');
 const cors = require('cors');
 const crypto = require('crypto');
+const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
 const path = require('path');
 
 const db = require('./db');
-const { verifyPayment, releaseEscrow, refundEscrow, escrowKeypair } = require('./solana');
+const { verifyPayment, releaseEscrow, refundEscrow, escrowKeypair, checkEscrowHealth, connection } = require('./solana');
 const { x402Protocol, send402, getPaymentProof, discoveryInfo } = require('./x402');
 const config = require(path.join(__dirname, '..', 'config.json'));
+const { deriveEscrowKeypair, getEscrowAddress, releaseFunds: releaseEscrowPDA, checkStatus: checkEscrowPDA, loadAuthority } = require('../escrow/mainnet-escrow');
+
+// Load authority for per-task escrow derivation
+let escrowAuthority;
+try { escrowAuthority = loadAuthority(); } catch (e) { console.error('Failed to load escrow authority:', e.message); }
+
+function getTaskEscrowAddress(taskId) {
+  if (!escrowAuthority) return escrowKeypair.publicKey.toBase58(); // fallback
+  return getEscrowAddress(escrowAuthority, String(taskId)).toBase58();
+}
 
 const app = express();
 const PORT = config.port || 3402;
@@ -44,10 +55,12 @@ function now() {
 }
 
 // --- Health ---
-app.get('/api/health', (_req, res) => {
+app.get('/api/health', async (_req, res) => {
   const agents = db.prepare('SELECT COUNT(*) as c FROM agents WHERE status = ?').get('active').c;
   const tasks = db.prepare('SELECT COUNT(*) as c FROM tasks').get().c;
-  res.json({ status: 'ok', agents, tasks, uptime: process.uptime(), network: config.network });
+  const wallet = await checkEscrowHealth();
+  if (!wallet.healthy) console.error('[HEALTH] Escrow wallet unhealthy!', wallet);
+  res.json({ status: wallet.healthy ? 'ok' : 'warning', agents, tasks, uptime: process.uptime(), network: config.network, escrow: { address: escrowKeypair.publicKey.toBase58(), healthy: wallet.healthy, balance_lamports: wallet.balance, mode: 'per-task-pda' }, platformFee: `${config.platformFeePercent || 0}%` });
 });
 
 // --- API Keys ---
@@ -149,6 +162,30 @@ app.get('/api/tasks/:id', (req, res) => {
   res.json(task);
 });
 
+// Escrow info for a task
+app.get('/api/tasks/:id/escrow', async (req, res) => {
+  try {
+    const task = db.prepare('SELECT * FROM tasks WHERE id = ?').get(req.params.id);
+    if (!task) return res.status(404).json({ error: 'Task not found' });
+    const addr = task.escrow_address || getTaskEscrowAddress(task.id);
+    let balance = null;
+    try {
+      const { LAMPORTS_PER_SOL } = require('@solana/web3.js');
+      const bal = await connection.getBalance(new (require('@solana/web3.js').PublicKey)(addr));
+      balance = bal / LAMPORTS_PER_SOL;
+    } catch {}
+    res.json({
+      task_id: task.id,
+      escrow_address: addr,
+      explorer_url: `https://explorer.solana.com/address/${addr}`,
+      balance_sol: balance,
+      status: task.status,
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // x402 discovery endpoint
 app.get('/.well-known/x402', (_req, res) => {
   res.json(discoveryInfo());
@@ -168,7 +205,10 @@ app.post('/api/tasks', (req, res) => {
   ).run(agent_id, hirer_wallet || null, description, agent.price_sol);
 
   const task = db.prepare('SELECT * FROM tasks WHERE id = ?').get(result.lastInsertRowid);
-  const escrowAddress = escrowKeypair.publicKey.toBase58();
+  const escrowAddress = getTaskEscrowAddress(task.id);
+
+  // Store the escrow address on the task for later lookup
+  db.prepare("UPDATE tasks SET escrow_address=? WHERE id=?").run(escrowAddress, task.id);
 
   // Return 402 Payment Required with x402 headers
   return send402(res, {
@@ -185,13 +225,14 @@ app.post('/api/tasks/:id/pay', async (req, res) => {
     if (!task) return res.status(404).json({ error: 'Task not found' });
     if (task.status !== 'pending') return res.status(400).json({ error: `Task status is ${task.status}, expected pending` });
 
+    const taskEscrowAddr = task.escrow_address || getTaskEscrowAddress(task.id);
+
     const txSignature = getPaymentProof(req);
     if (!txSignature) {
-      const escrowAddress = escrowKeypair.publicKey.toBase58();
       return send402(res, {
         taskId: task.id,
         amount: task.escrow_amount_sol,
-        address: escrowAddress,
+        address: taskEscrowAddr,
         message: 'Missing X-Payment-Proof header. Provide the Solana transaction signature.',
       });
     }
@@ -200,15 +241,14 @@ app.post('/api/tasks/:id/pay', async (req, res) => {
       txSignature,
       task.escrow_amount_sol,
       task.hirer_wallet || (req.body && req.body.hirer_wallet) || null,
-      escrowKeypair.publicKey.toBase58()
+      taskEscrowAddr
     );
 
     if (!result) {
-      const escrowAddress = escrowKeypair.publicKey.toBase58();
       return send402(res, {
         taskId: task.id,
         amount: task.escrow_amount_sol,
-        address: escrowAddress,
+        address: taskEscrowAddr,
         message: 'Payment verification failed. Ensure correct amount and destination.',
       });
     }
@@ -239,7 +279,20 @@ app.post('/api/tasks/:id/complete', authApiKey, async (req, res) => {
       return res.status(400).json({ error: `Task status is ${task.status}, expected funded or in_progress` });
     }
 
-    const sig = await releaseEscrow(agent.wallet_address, task.escrow_amount_sol);
+    // Try per-task PDA escrow release first, fall back to legacy hot wallet
+    let sig;
+    if (task.escrow_address && escrowAuthority) {
+      try {
+        const result = await releaseEscrowPDA(String(task.id), agent.wallet_address, config.platformFeePercent || 10);
+        sig = result ? result.signature : null;
+        if (result) console.log(`[escrow] PDA release: agent=${result.agentPayout/1e9} SOL, fee=${result.platformCut/1e9} SOL`);
+      } catch (e) {
+        console.error('[escrow] PDA release failed, falling back:', e.message);
+        sig = await releaseEscrow(agent.wallet_address, task.escrow_amount_sol);
+      }
+    } else {
+      sig = await releaseEscrow(agent.wallet_address, task.escrow_amount_sol);
+    }
 
     db.prepare("UPDATE tasks SET status='completed', completion_tx_signature=?, updated_at=? WHERE id=?")
       .run(sig, now(), req.params.id);
@@ -269,6 +322,7 @@ app.get('/api/tasks/:id/result', (req, res) => {
     payment_proof: task.payment_proof,
     completion_tx_signature: task.completion_tx_signature,
     escrow_amount_sol: task.escrow_amount_sol,
+    escrow_address: task.escrow_address || getTaskEscrowAddress(task.id),
     created_at: task.created_at,
     payment_verified_at: task.payment_verified_at,
     updated_at: task.updated_at,
@@ -285,6 +339,83 @@ app.post('/api/tasks/:id/dispute', (req, res) => {
 
   db.prepare("UPDATE tasks SET status='disputed', updated_at=? WHERE id=?").run(now(), req.params.id);
   res.json(db.prepare('SELECT * FROM tasks WHERE id = ?').get(req.params.id));
+});
+
+// --- Internal: agent submits result (called by OpenClaw agent) ---
+app.post('/api/tasks/:id/submit-result', async (req, res) => {
+  try {
+    const { result, internal_key } = req.body;
+    // Simple internal auth — only accept from localhost or with internal key
+    const isLocal = req.ip === '127.0.0.1' || req.ip === '::1' || req.ip === '::ffff:127.0.0.1';
+    if (!isLocal) return res.status(403).json({ error: 'Internal endpoint only' });
+
+    const task = db.prepare('SELECT * FROM tasks WHERE id = ?').get(req.params.id);
+    if (!task) return res.status(404).json({ error: 'Task not found' });
+    if (!['funded', 'in_progress'].includes(task.status)) {
+      return res.status(400).json({ error: `Task status is ${task.status}` });
+    }
+
+    const agent = db.prepare('SELECT * FROM agents WHERE id = ?').get(task.agent_id);
+    const completedAt = now();
+
+    // Try to release escrow (PDA first, then legacy)
+    let sig = null;
+    try {
+      if (task.escrow_address && escrowAuthority) {
+        const result = await releaseEscrowPDA(String(task.id), agent.wallet_address, config.platformFeePercent || 10);
+        sig = result ? result.signature : null;
+      } else {
+        sig = await releaseEscrow(agent.wallet_address, task.escrow_amount_sol);
+      }
+    } catch (err) {
+      console.error('Escrow release failed:', err.message);
+      try { sig = await releaseEscrow(agent.wallet_address, task.escrow_amount_sol); } catch {}
+    }
+
+    db.prepare(
+      "UPDATE tasks SET status='completed', result=?, result_at=?, completion_tx_signature=?, updated_at=? WHERE id=?"
+    ).run(result, completedAt, sig, completedAt, req.params.id);
+
+    db.prepare("UPDATE agents SET tasks_completed = tasks_completed + 1, updated_at=? WHERE id=?")
+      .run(completedAt, agent.id);
+
+    // Save HTML results as files for direct linking
+    if (result && (result.trim().startsWith('<!DOCTYPE') || result.trim().startsWith('<html'))) {
+      const resultFile = path.join(__dirname, '..', 'results', `task-${req.params.id}.html`);
+      fs.writeFileSync(resultFile, result);
+      console.log(`[api] HTML result saved to ${resultFile}`);
+    }
+
+    console.log(`[api] Task #${req.params.id} completed with result (${result.length} chars)`);
+    res.json({ status: 'completed', task_id: req.params.id, release_signature: sig });
+  } catch (err) {
+    console.error('submit-result error:', err);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+// --- Serve task result as standalone page ---
+const resultsDir = path.join(__dirname, '..', 'results');
+if (!fs.existsSync(resultsDir)) fs.mkdirSync(resultsDir, { recursive: true });
+
+app.get('/results/:id', (req, res) => {
+  try {
+    const filePath = path.join(resultsDir, `task-${req.params.id}.html`);
+    console.log(`[results] Looking for ${filePath}, exists: ${fs.existsSync(filePath)}`);
+    if (fs.existsSync(filePath)) {
+      return res.type('html').send(fs.readFileSync(filePath, 'utf8'));
+    }
+    // Fallback: check DB for HTML result
+    const task = db.prepare('SELECT result FROM tasks WHERE id = ?').get(req.params.id);
+    if (task && task.result && (task.result.trim().startsWith('<!DOCTYPE') || task.result.trim().startsWith('<html'))) {
+      fs.writeFileSync(filePath, task.result);
+      return res.type('html').send(task.result);
+    }
+    res.status(404).send('Result not found or not an HTML deliverable.');
+  } catch(err) {
+    console.error('[results] Error:', err);
+    res.status(500).send('Error loading result');
+  }
 });
 
 // --- Error handling ---

@@ -57,5 +57,8 @@ try {
 try {
   db.exec(`ALTER TABLE tasks ADD COLUMN result_at TEXT`);
 } catch (_) { /* column already exists */ }
+try {
+  db.exec(`ALTER TABLE tasks ADD COLUMN escrow_address TEXT`);
+} catch (_) { /* column already exists */ }
 
 module.exports = db;
