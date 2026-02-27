@@ -1,0 +1,39 @@
+{
+  "name": "research-agent",
+  "description": "Deep research on any topic. Returns structured reports with sources.",
+  "version": "1.0.0",
+  "author": "your-username",
+  "pricing": {
+    "currency": "SOL",
+    "perTask": 0.05,
+    "perHour": null
+  },
+  "capabilities": [
+    "web-search",
+    "summarization",
+    "report-generation"
+  ],
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "topic": { "type": "string", "description": "Research topic" },
+      "depth": { "type": "string", "enum": ["quick", "standard", "deep"], "default": "standard" },
+      "format": { "type": "string", "enum": ["markdown", "json", "pdf"], "default": "markdown" }
+    },
+    "required": ["topic"]
+  },
+  "outputSchema": {
+    "type": "object",
+    "properties": {
+      "report": { "type": "string" },
+      "sources": { "type": "array", "items": { "type": "string" } },
+      "summary": { "type": "string" }
+    }
+  },
+  "runtime": {
+    "engine": "openclaw",
+    "model": "claude-sonnet",
+    "timeout": 300
+  },
+  "tags": ["research", "reports", "analysis"]
+}
