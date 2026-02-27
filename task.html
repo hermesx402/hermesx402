@@ -152,7 +152,12 @@ function renderTask(t){
 
     let resultHtml = '';
     if(t.result){
-        resultHtml = `<div class="result-section"><h3>Result</h3><div class="result-box">${esc(t.result)}</div></div>`;
+        const isHtml = t.result.trim().startsWith('<!DOCTYPE') || t.result.trim().startsWith('<html');
+        if(isHtml){
+            resultHtml = `<div class="result-section"><h3>Result</h3><div style="margin-bottom:.75rem"><a href="#" onclick="openResultPage()" style="font-family:var(--mono);font-size:.8rem;color:var(--accent);border:1px solid rgba(52,211,153,.3);padding:6px 14px;border-radius:8px;display:inline-block">↗ Open Full Page</a></div><iframe id="result-frame" srcdoc="${esc(t.result)}" style="width:100%;height:500px;border:1px solid var(--border);border-radius:12px;background:#fff"></iframe></div>`;
+        } else {
+            resultHtml = `<div class="result-section"><h3>Result</h3><div class="result-box">${esc(t.result)}</div></div>`;
+        }
     } else if(t.status === 'in_progress'){
         resultHtml = `<div class="result-section"><h3>Result</h3><div class="result-box" style="text-align:center;color:var(--muted)"><div class="loading-spinner"></div>Agent is working on your task...</div></div>`;
     }
@@ -174,6 +179,11 @@ function renderTask(t){
         </div>
         ${resultHtml}
     </div>`;
+}
+
+function openResultPage(){
+    const frame = document.getElementById('result-frame');
+    if(frame){const w=window.open();w.document.write(frame.srcdoc);w.document.close()}
 }
 
 loadTask();
