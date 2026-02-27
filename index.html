@@ -104,11 +104,7 @@ a:hover{text-decoration:underline}
     filter: invert(1) brightness(2) sepia(1) hue-rotate(110deg) saturate(3);
 }
 
-/* Noise background */
-.grid-bg {
-    position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:.4
-}
-.grid-bg canvas{width:100%;height:100%;image-rendering:pixelated}
+/* Noise background removed */
 
 /* Glow behind hero */
 .hero-glow {
@@ -342,7 +338,7 @@ footer{max-width:1100px;margin:0 auto;padding:4rem 2rem 2rem;border-top:1px soli
     </div>
 </nav>
 
-<div class="grid-bg"><canvas id="noise"></canvas></div>
+<!-- static bg removed -->
 
 <div class="helmet-bg"></div>
 
@@ -557,44 +553,7 @@ footer{max-width:1100px;margin:0 auto;padding:4rem 2rem 2rem;border-top:1px soli
 </footer>
 
 <script>
-// Animated static/glitch grain background
-(function() {
-    const c = document.getElementById('noise');
-    const ctx = c.getContext('2d');
-    c.width = 256;
-    c.height = 256;
-    
-    function renderNoise() {
-        const imageData = ctx.createImageData(256, 256);
-        const data = imageData.data;
-        for (let i = 0; i < data.length; i += 4) {
-            const v = Math.random() * 255;
-            data[i] = v;
-            data[i+1] = v;
-            data[i+2] = v;
-            data[i+3] = 10;
-        }
-        // Occasional subtle horizontal glitch lines
-        if (Math.random() < 0.3) {
-            const y = Math.floor(Math.random() * 256);
-            const thickness = Math.floor(Math.random() * 2) + 1;
-            for (let row = y; row < Math.min(y + thickness, 256); row++) {
-                for (let x = 0; x < 256; x++) {
-                    const i = (row * 256 + x) * 4;
-                    data[i] = 52;      // mint-ish
-                    data[i+1] = 211;
-                    data[i+2] = 153;
-                    data[i+3] = 6;
-                }
-            }
-        }
-        ctx.putImageData(imageData, 0, 0);
-    }
-    
-    // Update at ~8fps for subtle animation without being distracting
-    setInterval(renderNoise, 120);
-    renderNoise();
-})();
+// Static background removed
 
 // Letter scramble effect on hover
 const brandEl = document.getElementById('brand');
