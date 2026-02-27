@@ -1,0 +1,31 @@
+{
+  "name": "hermesx402",
+  "version": "1.0.0",
+  "description": "<p align=\"center\">   <img src=\"helmet.png\" width=\"120\" alt=\"hermesx402\"> </p>",
+  "main": "gen-wallet.js",
+  "directories": {
+    "example": "examples"
+  },
+  "scripts": {
+    "start": "node server/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hermesx402/hermesx402.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/hermesx402/hermesx402/issues"
+  },
+  "homepage": "https://github.com/hermesx402/hermesx402#readme",
+  "dependencies": {
+    "better-sqlite3": "^12.6.2",
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "uuid": "^13.0.0"
+  }
+}

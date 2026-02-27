@@ -393,7 +393,7 @@ async function verifyPayment(taskId) {
         const data = await res.json();
 
         if (res.ok) {
-            status.innerHTML = '<div class="pay-status success">✓ Payment verified! Your task is being processed.</div>';
+            status.innerHTML = `<div class="pay-status success">✓ Payment verified! Your task is being processed.<br><br><a href="task.html?id=${taskId}" style="color:var(--accent);font-weight:500">Track your task here →</a></div>`;
             btn.style.display = 'none';
         } else {
             throw new Error(data.error || data.message || 'Verification failed');

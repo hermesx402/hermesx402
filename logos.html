@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+body { background: #08080a; margin: 0; padding: 40px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; }
+.logo-card { text-align: center; }
+.logo-card canvas { border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; }
+.logo-card p { font-family: 'JetBrains Mono', monospace; color: #888; font-size: 13px; margin-top: 12px; }
+</style>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="logo-card"><canvas id="c1" width="300" height="300"></canvas><p>1 — Minimal Helmet</p></div>
+<div class="logo-card"><canvas id="c2" width="300" height="300"></canvas><p>2 — Geometric Wings</p></div>
+<div class="logo-card"><canvas id="c3" width="300" height="300"></canvas><p>3 — Dotted Helmet</p></div>
+<div class="logo-card"><canvas id="c4" width="300" height="300"></canvas><p>4 — H Monogram + Wing</p></div>
+<div class="logo-card"><canvas id="c5" width="300" height="300"></canvas><p>5 — Shield + Wings</p></div>
+<div class="logo-card"><canvas id="c6" width="300" height="300"></canvas><p>6 — Abstract Winged Mark</p></div>
+
+<script>
+const mint = '#34d399';
+const mintDim = 'rgba(52,211,153,0.3)';
+
+// 1 — Minimal Helmet (clean lines)
+(function(){
+    const ctx = document.getElementById('c1').getContext('2d');
+    const cx=150, cy=150;
+    ctx.strokeStyle = mint;
+    ctx.lineWidth = 2.5;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    
+    // Helmet dome
+    ctx.beginPath();
+    ctx.arc(cx, cy-10, 60, Math.PI*0.15, Math.PI*0.85, true);
+    ctx.stroke();
+    
+    // Sides down
+    ctx.beginPath();
+    ctx.moveTo(cx-57, cy+10);
+    ctx.lineTo(cx-50, cy+55);
+    ctx.quadraticCurveTo(cx, cy+75, cx+50, cy+55);
+    ctx.lineTo(cx+57, cy+10);
+    ctx.stroke();
+    
+    // Visor slit
+    ctx.beginPath();
+    ctx.moveTo(cx-40, cy+15);
+    ctx.lineTo(cx+40, cy+15);
+    ctx.stroke();
+    
+    // Nose guard
+    ctx.beginPath();
+    ctx.moveTo(cx, cy+15);
+    ctx.lineTo(cx, cy+45);
+    ctx.stroke();
+    
+    // Crest
+    ctx.beginPath();
+    ctx.moveTo(cx, cy-70);
+    ctx.quadraticCurveTo(cx+8, cy-55, cx+6, cy-20);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(cx, cy-70);
+    ctx.quadraticCurveTo(cx-8, cy-55, cx-6, cy-20);
+    ctx.stroke();
+    
+    // Left wing
+    ctx.beginPath();
+    ctx.moveTo(cx-58, cy-10);
+    ctx.quadraticCurveTo(cx-100, cy-50, cx-130, cy-70);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(cx-58, cy-5);
+    ctx.quadraticCurveTo(cx-95, cy-35, cx-125, cy-50);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(cx-55, cy+2);
+    ctx.quadraticCurveTo(cx-90, cy-20, cx-115, cy-30);
+    ctx.stroke();
+    
+    // Right wing
+    ctx.beginPath();
+    ctx.moveTo(cx+58, cy-10);
+    ctx.quadraticCurveTo(cx+100, cy-50, cx+130, cy-70);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(cx+58, cy-5);
+    ctx.quadraticCurveTo(cx+95, cy-35, cx+125, cy-50);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(cx+55, cy+2);
+    ctx.quadraticCurveTo(cx+90, cy-20, cx+115, cy-30);
+    ctx.stroke();
+})();
+
+// 2 — Geometric Wings (angular/polygon style)
+(function(){
+    const ctx = document.getElementById('c2').getContext('2d');
+    const cx=150, cy=155;
+    ctx.strokeStyle = mint;
+    ctx.fillStyle = 'transparent';
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    
+    // Helmet as hexagonal shape
+    ctx.beginPath();
+    ctx.moveTo(cx, cy-75);
+    ctx.lineTo(cx+45, cy-45);
+    ctx.lineTo(cx+50, cy+15);
+    ctx.lineTo(cx+35, cy+50);
+    ctx.lineTo(cx-35, cy+50);
+    ctx.lineTo(cx-50, cy+15);
+    ctx.lineTo(cx-45, cy-45);
+    ctx.closePath();
+    ctx.stroke();
+    
+    // Visor
+    ctx.beginPath();
+    ctx.moveTo(cx-30, cy+5);
+    ctx.lineTo(cx+30, cy+5);
+    ctx.lineTo(cx+20, cy+25);
+    ctx.lineTo(cx-20, cy+25);
+    ctx.closePath();
+    ctx.stroke();
+    
+    // Left wing — angular feathers
+    ctx.beginPath();
+    ctx.moveTo(cx-50, cy-20);
+    ctx.lineTo(cx-90, cy-50);
+    ctx.lineTo(cx-130, cy-65);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(cx-48, cy-10);
+    ctx.lineTo(cx-85, cy-35);
+    ctx.lineTo(cx-120, cy-45);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(cx-48, cy);
+    ctx.lineTo(cx-80, cy-18);
+    ctx.lineTo(cx-110, cy-22);
+    ctx.stroke();
+    
+    // Right wing
+    ctx.beginPath();
+    ctx.moveTo(cx+50, cy-20);
+    ctx.lineTo(cx+90, cy-50);
+    ctx.lineTo(cx+130, cy-65);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(cx+48, cy-10);
+    ctx.lineTo(cx+85, cy-35);
+    ctx.lineTo(cx+120, cy-45);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(cx+48, cy);
+    ctx.lineTo(cx+80, cy-18);
+    ctx.lineTo(cx+110, cy-22);
+    ctx.stroke();
+    
+    // Crest line
+    ctx.beginPath();
+    ctx.moveTo(cx, cy-75);
+    ctx.lineTo(cx, cy-95);
+    ctx.stroke();
+})();
+
+// 3 — Dotted/Halftone Helmet
+(function(){
+    const ctx = document.getElementById('c3').getContext('2d');
+    const cx=150, cy=150;
+    
+    // Draw solid helmet on offscreen
+    const off = document.createElement('canvas');
+    off.width=300; off.height=300;
+    const oc = off.getContext('2d');
+    oc.fillStyle = '#fff';
+    
+    // Dome
+    oc.beginPath();
+    oc.ellipse(cx, cy, 55, 70, 0, 0, Math.PI*2);
+    oc.fill();
+    
+    // Cut visor
+    oc.fillStyle = '#000';
+    oc.beginPath();
+    oc.ellipse(cx, cy+15, 32, 30, 0, 0, Math.PI*2);
+    oc.fill();
+    
+    // Crest
+    oc.fillStyle = '#fff';
+    oc.fillRect(cx-5, cy-95, 10, 35);
+    
+    // Wings
+    oc.beginPath();
+    oc.moveTo(cx-55, cy-15);
+    oc.quadraticCurveTo(cx-110, cy-60, cx-140, cy-75);
+    oc.quadraticCurveTo(cx-110, cy-40, cx-90, cy-15);
+    oc.quadraticCurveTo(cx-100, cy-45, cx-130, cy-55);
+    oc.quadraticCurveTo(cx-100, cy-25, cx-75, cy);
+    oc.quadraticCurveTo(cx-80, cy-20, cx-55, cy-15);
+    oc.fill();
+    
+    oc.beginPath();
+    oc.moveTo(cx+55, cy-15);
+    oc.quadraticCurveTo(cx+110, cy-60, cx+140, cy-75);
+    oc.quadraticCurveTo(cx+110, cy-40, cx+90, cy-15);
+    oc.quadraticCurveTo(cx+100, cy-45, cx+130, cy-55);
+    oc.quadraticCurveTo(cx+100, cy-25, cx+75, cy);
+    oc.quadraticCurveTo(cx+80, cy-20, cx+55, cy-15);
+    oc.fill();
+    
+    // Nose
+    oc.fillRect(cx-3, cy-5, 6, 35);
+    
+    // Render as dots
+    const imgData = oc.getImageData(0,0,300,300).data;
+    const sp = 5;
+    for(let y=0;y<300;y+=sp){
+        for(let x=0;x<300;x+=sp){
+            const i=(y*300+x)*4;
+            if(imgData[i]>100){
+                const r = (imgData[i]/255)*2.2;
+                ctx.beginPath();
+                ctx.arc(x,y,r,0,Math.PI*2);
+                ctx.fillStyle=mint;
+                ctx.fill();
+            }
+        }
+    }
+})();
+
+// 4 — H Monogram + Wing
+(function(){
+    const ctx = document.getElementById('c4').getContext('2d');
+    const cx=150, cy=150;
+    ctx.strokeStyle = mint;
+    ctx.lineWidth = 3;
+    ctx.lineCap = 'round';
+    
+    // Big H
+    ctx.font = '700 120px JetBrains Mono';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.strokeText('H', cx+2, cy+5);
+    
+    // Wing strokes from left side
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(cx-45, cy-15);
+    ctx.quadraticCurveTo(cx-80, cy-45, cx-110, cy-60);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(cx-45, cy-8);
+    ctx.quadraticCurveTo(cx-75, cy-30, cx-105, cy-42);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(cx-42, cy);
+    ctx.quadraticCurveTo(cx-70, cy-18, cx-95, cy-25);
+    ctx.stroke();
+    
+    // Wing strokes from right side
+    ctx.beginPath();
+    ctx.moveTo(cx+45, cy-15);
+    ctx.quadraticCurveTo(cx+80, cy-45, cx+110, cy-60);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(cx+45, cy-8);
+    ctx.quadraticCurveTo(cx+75, cy-30, cx+105, cy-42);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(cx+42, cy);
+    ctx.quadraticCurveTo(cx+70, cy-18, cx+95, cy-25);
+    ctx.stroke();
+})();
+
+// 5 — Shield + Wings
+(function(){
+    const ctx = document.getElementById('c5').getContext('2d');
+    const cx=150, cy=155;
+    ctx.strokeStyle = mint;
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    
+    // Shield shape
+    ctx.beginPath();
+    ctx.moveTo(cx, cy-60);
+    ctx.lineTo(cx+45, cy-40);
+    ctx.lineTo(cx+45, cy+10);
+    ctx.quadraticCurveTo(cx+40, cy+50, cx, cy+65);
+    ctx.quadraticCurveTo(cx-40, cy+50, cx-45, cy+10);
+    ctx.lineTo(cx-45, cy-40);
+    ctx.closePath();
+    ctx.stroke();
+    
+    // Inner line
+    ctx.beginPath();
+    ctx.moveTo(cx, cy-45);
+    ctx.lineTo(cx, cy+50);
+    ctx.stroke();
+    
+    // Cross bar
+    ctx.beginPath();
+    ctx.moveTo(cx-25, cy);
+    ctx.lineTo(cx+25, cy);
+    ctx.stroke();
+    
+    // Left wing feathers
+    ctx.beginPath(); ctx.moveTo(cx-45,cy-25); ctx.quadraticCurveTo(cx-90,cy-55,cx-130,cy-70); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx-45,cy-15); ctx.quadraticCurveTo(cx-85,cy-40,cx-120,cy-50); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx-45,cy-5); ctx.quadraticCurveTo(cx-80,cy-25,cx-110,cy-30); ctx.stroke();
+    
+    // Right wing feathers
+    ctx.beginPath(); ctx.moveTo(cx+45,cy-25); ctx.quadraticCurveTo(cx+90,cy-55,cx+130,cy-70); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx+45,cy-15); ctx.quadraticCurveTo(cx+85,cy-40,cx+120,cy-50); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx+45,cy-5); ctx.quadraticCurveTo(cx+80,cy-25,cx+110,cy-30); ctx.stroke();
+})();
+
+// 6 — Abstract Winged Mark (minimal swoosh)
+(function(){
+    const ctx = document.getElementById('c6').getContext('2d');
+    const cx=150, cy=155;
+    ctx.strokeStyle = mint;
+    ctx.lineWidth = 2.5;
+    ctx.lineCap = 'round';
+    
+    // Central diamond
+    ctx.beginPath();
+    ctx.moveTo(cx, cy-50);
+    ctx.lineTo(cx+25, cy);
+    ctx.lineTo(cx, cy+50);
+    ctx.lineTo(cx-25, cy);
+    ctx.closePath();
+    ctx.stroke();
+    
+    // Inner dot
+    ctx.beginPath();
+    ctx.arc(cx, cy, 5, 0, Math.PI*2);
+    ctx.fillStyle = mint;
+    ctx.fill();
+    
+    // Left wing curves
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(cx-25, cy-10);
+    ctx.quadraticCurveTo(cx-70, cy-50, cx-130, cy-55);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(cx-25, cy);
+    ctx.quadraticCurveTo(cx-65, cy-30, cx-120, cy-32);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(cx-25, cy+10);
+    ctx.quadraticCurveTo(cx-60, cy-10, cx-110, cy-10);
+    ctx.stroke();
+    
+    // Right wing curves
+    ctx.beginPath();
+    ctx.moveTo(cx+25, cy-10);
+    ctx.quadraticCurveTo(cx+70, cy-50, cx+130, cy-55);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(cx+25, cy);
+    ctx.quadraticCurveTo(cx+65, cy-30, cx+120, cy-32);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(cx+25, cy+10);
+    ctx.quadraticCurveTo(cx+60, cy-10, cx+110, cy-10);
+    ctx.stroke();
+})();
+</script>
+</body>
+</html>

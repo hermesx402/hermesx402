@@ -1,0 +1,5 @@
+node_modules/
+server/hermes.db
+server/hermes.db-shm
+server/hermes.db-wal
+config.json
