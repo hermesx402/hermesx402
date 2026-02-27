@@ -63,6 +63,8 @@ footer{max-width:720px;margin:0 auto;padding:4rem 2rem 2rem;border-top:1px solid
 .footer-bottom{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem}
 .footer-bottom span{font-family:var(--mono);font-size:.75rem;color:var(--faint)}
 
+.result-tab{font-family:var(--mono);font-size:.75rem;color:var(--muted);background:rgba(255,255,255,.03);border:1px solid var(--border);padding:6px 14px;border-radius:8px;cursor:pointer;transition:all .15s}
+.result-tab:hover,.result-tab.active{color:var(--accent);border-color:rgba(52,211,153,.3);background:rgba(52,211,153,.06)}
 @media(max-width:640px){.detail-grid{grid-template-columns:1fr}.steps{flex-wrap:wrap;gap:.5rem}.step-line{width:30px}}
 </style>
 </head>
@@ -154,7 +156,17 @@ function renderTask(t){
     if(t.result){
         const isHtml = t.result.trim().startsWith('<!DOCTYPE') || t.result.trim().startsWith('<html');
         if(isHtml){
-            resultHtml = `<div class="result-section"><h3>Result</h3><div style="margin-bottom:.75rem"><a href="#" onclick="openResultPage()" style="font-family:var(--mono);font-size:.8rem;color:var(--accent);border:1px solid rgba(52,211,153,.3);padding:6px 14px;border-radius:8px;display:inline-block">↗ Open Full Page</a></div><iframe id="result-frame" srcdoc="${esc(t.result)}" style="width:100%;height:500px;border:1px solid var(--border);border-radius:12px;background:#fff"></iframe></div>`;
+            const resultUrl = `${API_URL}/results/${t.id}`;
+            resultHtml = `<div class="result-section">
+              <h3>Result</h3>
+              <div style="display:flex;gap:8px;margin-bottom:1rem">
+                <button onclick="showTab('preview')" id="tab-preview" class="result-tab active">Preview</button>
+                <button onclick="showTab('code')" id="tab-code" class="result-tab">Code</button>
+                <a href="${resultUrl}" target="_blank" class="result-tab" style="text-decoration:none">↗ Open Page</a>
+              </div>
+              <div id="panel-preview"><iframe src="${resultUrl}" style="width:100%;height:500px;border:1px solid var(--border);border-radius:12px;background:#fff"></iframe></div>
+              <div id="panel-code" style="display:none"><div class="result-box"><code>${esc(t.result)}</code></div></div>
+            </div>`;
         } else {
             resultHtml = `<div class="result-section"><h3>Result</h3><div class="result-box">${esc(t.result)}</div></div>`;
         }
@@ -179,6 +191,13 @@ function renderTask(t){
         </div>
         ${resultHtml}
     </div>`;
+}
+
+function showTab(tab){
+    document.getElementById('panel-preview').style.display = tab==='preview' ? '' : 'none';
+    document.getElementById('panel-code').style.display = tab==='code' ? '' : 'none';
+    document.getElementById('tab-preview').classList.toggle('active', tab==='preview');
+    document.getElementById('tab-code').classList.toggle('active', tab==='code');
 }
 
 function openResultPage(){
